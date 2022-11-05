@@ -134,15 +134,17 @@ def topmost_thresholds(container = st):
     Set the topmost thresholds.
     """
     container.markdown("----")
+    col1, col2, col3 = container.columns(3)
+    
     dataset = core.get( "gene_set" )
     x = core.get( "gene_set_settings" )["x"]
     y = core.get( "gene_set_settings" )["y"]
     minx, maxx = float(dataset[x].min()), float(dataset[x].max())
     miny, maxy = float(dataset[y].min()), float(dataset[y].max())
-    topx = container.slider( "x-threshold", min_value = minx, max_value = maxx, value = 0.65 * maxx, step = 0.01, help = "The topmost threshold for the `x` column." )
-    topy = container.slider( "y-threshold", min_value = miny, max_value = maxy, value = 0.65 * maxy, step = 0.01, help = "The topmost threshold for the `y` column." )
+    topx = col1.slider( "x-threshold", min_value = minx, max_value = maxx, value = 0.65 * maxx, step = 0.01, help = "The topmost threshold for the `x` column." )
+    topy = col2.slider( "y-threshold", min_value = miny, max_value = maxy, value = 0.65 * maxy, step = 0.01, help = "The topmost threshold for the `y` column." )
     
-    n_per_subset = container.number_input( "Show n per subset", min_value = 0, value = 0, max_value = 50, help = "Use this to show the `n` top-most gene sets in each subset instead of global numeric thresholding. If set to `0` this input is ignored." )
+    n_per_subset = col3.number_input( "Show n per subset", min_value = 0, value = 0, max_value = 50, help = "Use this to show the `n` top-most gene sets in each subset instead of global numeric thresholding. If set to `0` this input is ignored." )
 
     return topx, topy, n_per_subset
 
