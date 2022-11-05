@@ -137,8 +137,8 @@ def topmost_thresholds(container = st):
     dataset = core.get( "gene_set" )
     x = core.get( "gene_set_settings" )["x"]
     y = core.get( "gene_set_settings" )["y"]
-    minx, maxx = dataset[x].min(), dataset[x].max()
-    miny, maxy = dataset[y].min(), dataset[y].max()
+    minx, maxx = float(dataset[x].min()), float(dataset[x].max())
+    miny, maxy = float(dataset[y].min()), float(dataset[y].max())
     topx = container.slider( "x-threshold", min_value = minx, max_value = maxx, value = 0.65 * maxx, step = 0.01, help = "The topmost threshold for the `x` column." )
     topy = container.slider( "y-threshold", min_value = miny, max_value = maxy, value = 0.65 * maxy, step = 0.01, help = "The topmost threshold for the `y` column." )
     
