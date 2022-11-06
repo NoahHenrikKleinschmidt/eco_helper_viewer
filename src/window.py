@@ -45,7 +45,7 @@ def ecotype_summary_page():
 
     gene_sets_fig = ecotype_summary.view_gene_sets(figure_panel)
     controls.download_figure( gene_sets_fig, "ecotype_topmost_gene_sets", figure_panel )
-    
+
 def gene_set_explorer():
 
     upper, middle_upper, middle_lower, lower = st.container(), st.container(), st.container(), st.container()
@@ -68,13 +68,15 @@ def gene_set_explorer():
     if core.get( "which_subsets" ).get( "scatter" ):
         subsets_fig = explorer.view_subsets(mcol2)
         controls.download_figure( subsets_fig, "subset_scatterplot", mcol2 )
-    
-    if core.get( "which_subsets" ).get( "counts" ):
-        counts_fig = explorer.view_histogram(mcol2)
-        controls.download_figure( counts_fig, "subset_counts", mcol2 )
+        gene_set_view_container = middle_upper
+    else:
+        gene_set_view_container = mcol2
+    # if core.get( "which_subsets" ).get( "counts" ):
+    #     counts_fig = explorer.view_histogram(mcol2)
+    #     controls.download_figure( counts_fig, "subset_counts", mcol2 )
 
     if core.get( "which_subsets" ).get( "topmost" ):
-        topmost_fig = explorer.view_gene_sets(middle_upper)
-        controls.download_figure( topmost_fig, "topmost_terms", middle_upper )
+        topmost_fig = explorer.view_gene_sets(gene_set_view_container)
+        controls.download_figure( topmost_fig, "topmost_terms", gene_set_view_container )
 
     middle_lower.markdown("---")

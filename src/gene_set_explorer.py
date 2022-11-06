@@ -17,7 +17,7 @@ def show_subset_figures(container = st):
     Controls for showing which plots to show.
     """
     show_scatter = container.checkbox( "Show scatterplot", value = True, help = "Show the term scatterplot." )
-    show_counts = container.checkbox( "Show counts", value = False, help = "Show the counts of terms associated with subsets." )
+    show_counts = False # container.checkbox( "Show counts", value = False, help = "Show the counts of terms associated with subsets." )
     show_topmost = container.checkbox( "Show topmost", value = True, help = "Show the topmost enriched terms (either global or per subset)." )
     show_topmost_table = container.checkbox( "Show topmost table", value = False, help = "Show the topmost enriched terms (either global or per subset) in a table." )
     return dict( scatter = show_scatter, counts = show_counts, topmost = show_topmost, topmost_table = show_topmost_table )
@@ -104,25 +104,28 @@ def edit_subsets(container = st):
         if terms == [""]:
             terms = None
 
-    if terms:
-        subsets["None"] = terms
-    else:
-        subsets.pop( "None", None )
 
     new_label = container.text_input( "New subset label", value = label, placeholder = "New subset", help = "The label of the new subset. This may include spaces and special characters." )
     add_new = container.button( "Save subset", help = "Save the subset to the current selection" )
     drop_subset = container.button( "Drop subset", help = "Drop the subset from the current selection" )
     if add_new:
         subsets[new_label] = terms
-        subsets.pop( "None", None )
-    if drop_subset:
+        if not new_label == "None":
+            subsets.pop( "None", None )
+    elif drop_subset:
         subsets.pop( label, None )
+    elif terms:
+        subsets[label] = terms
+    else:
+        subsets.pop( "None", None )
+
+    session["highlight_subsets"] = subsets
 
 def upload_subsets(container = st):
     """
     Upload a subset file.
     """
-    file = container.file_uploader( "Upload a subset file", help = "Upload a file of subsets to highlight. This must be a python `dictionary` as a blank text file, containing subset labels as keys and lists of python-`regex` patterns as values." )
+    file = container.file_uploader( "Upload a subset file", help = "Upload a file of subsets to highlight. This must be a python `dictionary` as a blank text file, containing subset labels as keys and lists of python-`regex` patterns as values. **Note**: Once you have uploaded the file, make sure to remove it using the little `x` symbol next to your uploaded file, otherwise the file will be re-uploaded and any modifications you make to the dictionary (such as adding new terms) will be overwritten each time the app recomputes!" )
     contents = file.read().decode("utf-8") if file else None
     if contents:
         contents = eval( contents )
