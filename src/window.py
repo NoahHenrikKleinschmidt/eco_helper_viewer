@@ -63,6 +63,7 @@ def gene_set_explorer():
 
     explorer.show_subset_figures(mcol1)
     explorer.edit_subsets(mcol1)
+    explorer.auto_drop_subsets(mcol1)
     explorer.topmost_thresholds(middle_lower)
 
     if core.get( "which_subsets" ).get( "scatter" ):

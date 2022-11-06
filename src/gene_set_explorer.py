@@ -252,6 +252,43 @@ def view_histogram(container = st):
 
     return fig 
 
+def auto_drop_subsets(container = st):
+    """
+    Drop automatically any subsets that do not have any terms in the topmost.
+    """
+
+    n_required = container.number_input( "Drop subsets with less than n terms", min_value = 0, value = 0, max_value = 50, help = "Use this to drop any subsets that do not have at least `n` terms in the topmost enriched terms. The `x_threshold` and `y_threshold` inputs are used to define topmost enriched terms." )
+
+    dataset = core.get( "gene_set" )
+    settings = core.get( "gene_set_settings" )
+    subsets = core.get("highlight_subsets" )
+
+    thresholds = core.get( "topmost_thresholds" )
+
+    cropped = dataset.query( f"`{settings.get('x')}` > {thresholds[0]} and `{settings.get('y')}` > {thresholds[1]}" )
+
+    plotter = visualise.StateScatterplot(   df = cropped, 
+                                            x = settings.get("x"), 
+                                            y = settings.get("y"), 
+                                            hue = settings.get("hue"), 
+                                            style = settings.get("style") )
+    
+    plotter._highlight( settings.get("ref"), subsets )
+    cropped = plotter.df
+    # st.write( cropped )
+    
+    counts = cropped.value_counts( "__hue__" )
+    to_drop = counts[counts < n_required].index.tolist()
+    to_drop += [ i for i in subsets if i not in counts.index.tolist() ]
+    # st.write( subsets.keys(), to_drop )
+
+    for i in to_drop:
+        subsets.pop(i)
+    
+    # st.write( subsets )
+    session["highlight_subsets"] = subsets
+
+    
 # @sessionize(label="topmost_terms")
 def view_gene_sets(container = st):
 
