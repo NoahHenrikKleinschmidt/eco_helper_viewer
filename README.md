@@ -25,6 +25,17 @@ The web-viewer allows an interactive overview of the enriched gene-sets in each 
 
 Figures are available both interactively through `plotly` and statically through `matplotlib`. Figures can be downloaded in html (plotly), png (both), and as pickle files (both) which contains the respective python figure object directly, so the user may later edit the figures to their liking.
 
+### Screenshots
+
+![](screenshots/layout1.png)
+
+![](screenshots/mpl_genesets.png)
+
+![](screenshots/layout4.png)
+
+![](screenshots/layout2.png)
+
+<!-- ![](screenshots/plotly_genesets_large.png) -->
 
 
 ### Input Data
