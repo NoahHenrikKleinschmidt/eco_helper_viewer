@@ -6,6 +6,7 @@ import streamlit as st
 from wrappers import sessionize
 import core
 import eco_helper.enrich.visualise as visualise
+import json
 
 session = st.session_state
 
@@ -75,7 +76,7 @@ def figure_settings(container = st):
     return dict( x = x, y = y, style = style, size = size, ref = ref_col )
 
 def subsets_textfield(container = st):
-    container.text_area( "Highlighted subsets", value = str( session.get( "highlight_subsets", None ) ), help = "The currently highlighted term-subsets. Note, this is only for display purposes. Editing in this field will have no effect." )
+    container.text_area( "Highlighted subsets", value = str( json.dumps( session.get( "highlight_subsets", {} ), indent = 4 ) ), help = "The currently highlighted term-subsets. Note, this is only for display purposes. Editing in this field will have no effect." )
 
 def edit_subsets(container = st):
     """
@@ -125,7 +126,7 @@ def upload_subsets(container = st):
     """
     Upload a subset file.
     """
-    file = container.file_uploader( "Upload a subset file", help = "Upload a file of subsets to highlight. This must be a python `dictionary` as a blank text file, containing subset labels as keys and lists of python-`regex` patterns as values. **Note**: Once you have uploaded the file, make sure to remove it using the little `x` symbol next to your uploaded file, otherwise the file will be re-uploaded and any modifications you make to the dictionary (such as adding new terms) will be overwritten each time the app recomputes!" )
+    file = container.file_uploader( "Upload a subset file", help = "Upload a file of subsets to highlight. This must be a python `dictionary` as a blank text file (i.e. a `json` file), containing subset labels as keys and lists of python-`regex` patterns as values (lists of strings). **Note**: Once you have uploaded the file, make sure to remove it using the little `x` symbol next to your uploaded file, otherwise the file will be re-uploaded and any modifications you make to the dictionary (such as adding new terms) will be overwritten each time the app recomputes!" )
     contents = file.read().decode("utf-8") if file else None
     if contents:
         contents = eval( contents )
@@ -262,7 +263,7 @@ def auto_drop_subsets(container = st):
 
     if n_required == 0:
         return
-        
+
     dataset = core.get( "gene_set" )
     settings = core.get( "gene_set_settings" )
     subsets = core.get("highlight_subsets" )
