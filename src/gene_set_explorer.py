@@ -40,6 +40,8 @@ def select_dataset(container = st):
     dataset = container.selectbox( "Celltype/state", options = datasets )
     
     dataset = collection[ecotype].query( f"CellType == '{dataset}'" )
+    dataset._ecotype = ecotype
+    dataset._celltype = dataset.CellType.unique()[0]
 
     # dataset["Genes"] = dataset["Genes"].apply( lambda x: x[:50]+"..." )
     return dataset
@@ -218,6 +220,7 @@ def view_subsets(container = st):
         visualise.plt.tight_layout()
         container.pyplot( fig )
 
+    container.download_button( "Download table", dataset.to_csv(index=False, sep="\t"), file_name = f"{dataset._ecotype}_{dataset._celltype}.tsv", help = "Download the data as a tsv file.", key = "download_table", mime = "text/tsv" )
     return fig 
 
 def view_histogram(container = st):
@@ -342,8 +345,8 @@ def view_gene_sets(container = st):
 
     if core.get( "which_subsets" ).get( "topmost_table" ):
         table_ext = container.expander( "Gene set table", expanded = False )
-        download = container.download_button( "Download table", dataset.to_csv( index = False, sep = "\t" ), file_name = "topmost_terms.tsv", mime = "text/tsv" )
         table_ext.table(plotter.df)
+    download = container.download_button( "Download table", dataset.to_csv( index = False, sep = "\t" ), file_name = "topmost_terms.tsv", mime = "text/tsv" )
 
     return fig
 

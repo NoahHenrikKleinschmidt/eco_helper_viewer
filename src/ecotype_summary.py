@@ -5,7 +5,8 @@ Controls for the ecotype summary page.
 import streamlit as st
 from wrappers import sessionize
 from core import check, get, to_pickle
-import controls 
+import controls
+import pandas as pd
 import eco_helper.enrich.visualise as visualise
 
 session = st.session_state
@@ -93,13 +94,14 @@ def view_gene_sets(container = st):
     view_n_topmost( col2 )
 
     if visualise.backend == "plotly":
-        fig = _plotly_gene_sets_of_ecotype( ecotype, collection[ecotype] )
+        fig, df = _plotly_gene_sets_of_ecotype( ecotype, collection[ecotype] )
         container.plotly_chart( fig, use_container_width = True )
 
     if visualise.backend == "matplotlib":
-        fig = _matplotlib_gene_sets_of_ecotype( ecotype, collection[ecotype] )
+        fig, df = _matplotlib_gene_sets_of_ecotype( ecotype, collection[ecotype] )
         container.pyplot( fig, dpi = 500 )
     
+    container.download_button( "Download table", df.to_csv(index=False, sep = "\t"), file_name = "gene_sets.tsv", mime = "text/tsv" )
     return fig
 
 @sessionize
@@ -147,7 +149,7 @@ def _matplotlib_gene_sets_of_ecotype( ecotype, df ):
         for spine in ax.spines.values():
             spine.set_linewidth(0.3)
 
-    return fig
+    return fig, df
 
 def _plotly_gene_sets_of_ecotype( ecotype, df ):
     """
@@ -163,11 +165,12 @@ def _plotly_gene_sets_of_ecotype( ecotype, df ):
 
     fig = go.Figure()
     groups = df.groupby( settings.get("hue") )
+    df = []
     for celltype, group in groups:
         group = group.sort_values( by = x, ascending = False )
         group = group.sort_values( by = y, ascending = False )
         group = group.head( int(n) )
-        
+        df.append( group )
         fig.add_trace( go.Scatter( 
                                     x = group[x], y = group["Term"], 
                                     name = celltype,
@@ -186,4 +189,4 @@ def _plotly_gene_sets_of_ecotype( ecotype, df ):
         xaxis_title = settings.get("xlabel", x),
     )   
 
-    return fig
+    return fig, pd.concat( df )
