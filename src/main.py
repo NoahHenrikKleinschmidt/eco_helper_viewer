@@ -34,7 +34,7 @@ def main():
     
     if core.get( "collection" ):
 
-        if core.get( "inspect_summary" ):
+        if core.get( "inspect_summary" ) or (not core.get( "explore_gene_sets" ) and not core.get( "inspect_summary" )):
             window.ecotype_summary_page()
 
         if core.get( "explore_gene_sets" ):

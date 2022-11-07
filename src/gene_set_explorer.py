@@ -6,6 +6,7 @@ import streamlit as st
 from wrappers import sessionize
 import core
 import eco_helper.enrich.visualise as visualise
+
 import json
 
 session = st.session_state
@@ -76,8 +77,12 @@ def figure_settings(container = st):
     return dict( x = x, y = y, style = style, size = size, ref = ref_col )
 
 def subsets_textfield(container = st):
-    container.text_area( "Highlighted subsets", value = str( json.dumps( session.get( "highlight_subsets", {} ), indent = 4 ) ), help = "The currently highlighted term-subsets. Note, this is only for display purposes. Editing in this field will have no effect." )
-
+    subsets = container.text_area( "Highlighted subsets", value = str( json.dumps( session.get( "highlight_subsets", {} ), indent = 4 ) ), help = "The currently highlighted term-subsets. The subsets can be edited in this field and saved." )
+    save = container.button( "Save", help = "Save the field contents as subsets." )
+    download = container.download_button( "Download", subsets, mime = "text/json", file_name = "highlighted_subsets.json", help = "Download the field contents as a file." )
+    if save:
+        session["highlight_subsets"] = eval( subsets )
+    
 def edit_subsets(container = st):
     """
     Edit the highlighted subsets.
@@ -126,10 +131,14 @@ def upload_subsets(container = st):
     """
     Upload a subset file.
     """
-    file = container.file_uploader( "Upload a subset file", help = "Upload a file of subsets to highlight. This must be a python `dictionary` as a blank text file (i.e. a `json` file), containing subset labels as keys and lists of python-`regex` patterns as values (lists of strings). **Note**: Once you have uploaded the file, make sure to remove it using the little `x` symbol next to your uploaded file, otherwise the file will be re-uploaded and any modifications you make to the dictionary (such as adding new terms) will be overwritten each time the app recomputes!" )
+    file = container.file_uploader( "Upload a subset file", help = "Upload a file of subsets to highlight. This must be a python `dictionary` as a blank text file (i.e. a `json` file), containing subset labels as keys and lists of python-`regex` patterns as values (lists of strings)." )
+    load = container.button( "Load subset file", help = "Load the subset file." )
+    
     contents = file.read().decode("utf-8") if file else None
     if contents:
         contents = eval( contents )
+    
+    if load and contents:
         session["highlight_subsets"].update( contents ) 
 
 @sessionize
@@ -147,10 +156,10 @@ def topmost_thresholds(container = st):
     miny, maxy = float(dataset[y].min()), float(dataset[y].max())
     topx = col1.slider( "x-threshold", min_value = minx, max_value = maxx, value = 0.65 * maxx, step = 0.01, help = "The topmost threshold for the `x` column." )
     topy = col2.slider( "y-threshold", min_value = miny, max_value = maxy, value = 0.65 * maxy, step = 0.01, help = "The topmost threshold for the `y` column." )
-    
     n_per_subset = col3.number_input( "Show n per subset", min_value = 0, value = 0, max_value = 50, help = "Use this to show the `n` top-most gene sets in each subset instead of global numeric thresholding. If set to `0` this input is ignored." )
+    show_thresholds = col1.checkbox( "Show thresholds", value = True, help = "If `True`, the thresholds will be shown on the scatterplot." )
 
-    return topx, topy, n_per_subset
+    return topx, topy, n_per_subset, show_thresholds
 
 # @sessionize(label = "raw_figure")
 def view_subsets(container = st):
@@ -161,7 +170,7 @@ def view_subsets(container = st):
     dataset = core.get( "gene_set" )
     subsets = session["highlight_subsets"]
     
-
+    x_threshold, y_threshold, _, show_thresholds = core.get( "topmost_thresholds" )
     settings = core.get( "gene_set_settings" )
     settings.update( core.get( "figure_settings" ) )
 
@@ -189,6 +198,8 @@ def view_subsets(container = st):
                                     xlabel = settings.get("xlabel", None),
                                     ylabel = settings.get("ylabel", None),
                                 )
+        if show_thresholds:
+            fig = _add_thresholds_to_plotly_fig( fig, x_threshold, y_threshold )
         container.plotly_chart( fig, use_container_width = True )
     else:
         fig = plotter.highlight( 
@@ -202,6 +213,8 @@ def view_subsets(container = st):
                                 )
         if despine:
             visualise.sns.despine()
+        if show_thresholds:
+            fig = _add_thresholds_to_matplotlib_fig( fig, x_threshold, y_threshold )
         visualise.plt.tight_layout()
         container.pyplot( fig )
 
@@ -259,7 +272,7 @@ def auto_drop_subsets(container = st):
     Drop automatically any subsets that do not have any terms in the topmost.
     """
 
-    n_required = container.number_input( "Drop subsets with less than n terms", min_value = 0, value = 0, max_value = 50, help = "Use this to drop any subsets that do not have at least `n` terms in the topmost enriched terms. The `x_threshold` and `y_threshold` inputs are used to define topmost enriched terms." )
+    n_required = container.number_input( "Drop subsets with less than n terms", min_value = 0, value = 0, max_value = 50, help = "Use this to drop any subsets that do not have at least `n` terms in the topmost enriched terms. The `x_threshold` and `y_threshold` inputs are used to define topmost enriched terms. **Note** after dropping, be sure to set the value back to `0` otherwise any new manually added subsets will also be automatically dropped if they do not conform to the count-constraints!" )
 
     if n_required == 0:
         return
@@ -293,6 +306,7 @@ def auto_drop_subsets(container = st):
     # st.write( subsets )
     session["highlight_subsets"] = subsets
 
+
     
 # @sessionize(label="topmost_terms")
 def view_gene_sets(container = st):
@@ -306,7 +320,7 @@ def view_gene_sets(container = st):
     title = "Topmost enriched Terms"
     ref_col = settings.get("ref")
 
-    topx, topy, n_topmost = core.get( "topmost_thresholds" )
+    topx, topy, n_topmost, _ = core.get( "topmost_thresholds" )
     n_topmost = int(n_topmost) if n_topmost > 0 else None 
 
     visualise.backend = settings.get("backend")
@@ -329,5 +343,24 @@ def view_gene_sets(container = st):
     if core.get( "which_subsets" ).get( "topmost_table" ):
         table_ext = container.expander( "Gene set table", expanded = False )
         table_ext.table(plotter.df)
+
+    return fig
+
+def _add_thresholds_to_plotly_fig( fig, x, y ):
+    """
+    Add thresholds to a plotly figure.
+    """
+    fig.add_hline( y = y, line_width = 1, line_dash = "dash", line_color = "black" )
+    fig.add_vline( x = x, line_width = 1, line_dash = "dash", line_color = "black" )
+
+    return fig
+
+def _add_thresholds_to_matplotlib_fig( fig, x, y ):
+    """
+    Add thresholds to a matplotlib figure.
+    """
+    ax = fig.axes[0]
+    ax.axhline( y = y, color = "black", linestyle = "--", linewidth = 0.5 )
+    ax.axvline( x = x, color = "black", linestyle = "--", linewidth = 0.5 )
 
     return fig
