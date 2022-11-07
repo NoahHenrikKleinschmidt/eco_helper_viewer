@@ -21,7 +21,7 @@ def show_subset_figures(container = st):
     show_scatter = container.checkbox( "Show scatterplot", value = True, help = "Show the term scatterplot." )
     show_counts = False # container.checkbox( "Show counts", value = False, help = "Show the counts of terms associated with subsets." )
     show_topmost = container.checkbox( "Show topmost", value = True, help = "Show the topmost enriched terms (either global or per subset)." )
-    show_topmost_table = container.checkbox( "Show topmost table", value = False, help = "Show the topmost enriched terms (either global or per subset) in a table." )
+    show_topmost_table = container.checkbox( "Show topmost table", value = False, help = "(Requires `Show Topmost`) Show the topmost enriched terms (either global or per subset) in a table." )
     return dict( scatter = show_scatter, counts = show_counts, topmost = show_topmost, topmost_table = show_topmost_table )
 
 
@@ -342,6 +342,7 @@ def view_gene_sets(container = st):
 
     if core.get( "which_subsets" ).get( "topmost_table" ):
         table_ext = container.expander( "Gene set table", expanded = False )
+        download = container.download_button( "Download table", dataset.to_csv( index = False, sep = "\t" ), file_name = "topmost_terms.tsv", mime = "text/tsv" )
         table_ext.table(plotter.df)
 
     return fig
