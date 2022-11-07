@@ -267,7 +267,6 @@ def view_histogram(container = st):
     topmost["scale"] = "among topmost terms"
 
     df = pd.concat( [full, topmost], axis = 0 )
-    st.write( df.head() )
 
     if backend == "plotly":
         fig = _plotly_histogram( df )
