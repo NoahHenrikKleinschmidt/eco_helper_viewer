@@ -72,9 +72,10 @@ def gene_set_explorer():
         gene_set_view_container = middle_upper
     else:
         gene_set_view_container = mcol2
-    # if core.get( "which_subsets" ).get( "counts" ):
-    #     counts_fig = explorer.view_histogram(mcol2)
-    #     controls.download_figure( counts_fig, "subset_counts", mcol2 )
+
+    if core.get( "which_subsets" ).get( "counts" ):
+        counts_fig = explorer.view_histogram(mcol2)
+        controls.download_figure( counts_fig, "subset_counts", mcol2 )
 
     if core.get( "which_subsets" ).get( "topmost" ):
         topmost_fig = explorer.view_gene_sets(gene_set_view_container)
