@@ -6,6 +6,8 @@ import streamlit as st
 from wrappers import sessionize
 import core
 import eco_helper.enrich.visualise as visualise
+import pandas as pd
+import plotly.express as px
 
 import json
 
@@ -19,7 +21,7 @@ def show_subset_figures(container = st):
     Controls for showing which plots to show.
     """
     show_scatter = container.checkbox( "Show scatterplot", value = True, help = "Show the term scatterplot." )
-    show_counts = False # container.checkbox( "Show counts", value = False, help = "Show the counts of terms associated with subsets." )
+    show_counts = container.checkbox( "Show fractions", value = False, help = "Show the a bargraph the fractions of terms associated with each subset." )
     show_topmost = container.checkbox( "Show topmost", value = True, help = "Show the topmost enriched terms (either global or per subset)." )
     show_topmost_table = container.checkbox( "Show topmost table", value = False, help = "(Requires `Show Topmost`) Show the topmost enriched terms (either global or per subset) in a table." )
     return dict( scatter = show_scatter, counts = show_counts, topmost = show_topmost, topmost_table = show_topmost_table )
@@ -240,33 +242,45 @@ def view_histogram(container = st):
     padding = settings.pop("padding", None)
     palette = settings.pop("palette", None)
 
-    visualise.backend = settings.pop("backend")
+    backend = settings.pop("backend")
 
+    
     plotter = visualise.StateScatterplot(   df = dataset, 
                                             x = settings.get("x"), 
                                             y = settings.get("y"), 
                                             hue = settings.get("hue"), 
                                             style = settings.get("style") )
-    
-    xthreshold = thresholds[0] / dataset[settings.get("x")].max() 
-    fig = plotter.count_highlights( 
-                                ref_col = ref_col,
-                                title = title,
-                                subsets = subsets, 
-                                topmost = xthreshold,
-                                absolute = True
-                                
-                            )
-    if visualise.backend == "plotly":
+    plotter._highlight( ref_col = ref_col, subsets = subsets )
+    full = plotter.df
+    full = full.value_counts( "__hue__", normalize = True ).rename("count").reset_index()
+    full["scale"] = "among all terms"
+
+    topmost = dataset.query( f"{settings.get('x')} > {thresholds[0]} and {settings.get('y')} > {thresholds[1]}" )
+    plotter = visualise.StateScatterplot(   df = topmost, 
+                                            x = settings.get("x"), 
+                                            y = settings.get("y"), 
+                                            hue = settings.get("hue"), 
+                                            style = settings.get("style") )
+    plotter._highlight( ref_col = ref_col, subsets = subsets )
+    topmost = plotter.df
+    topmost = topmost.value_counts( "__hue__", normalize = True ).rename("count").reset_index()
+    topmost["scale"] = "among topmost terms"
+
+    df = pd.concat( [full, topmost], axis = 0 )
+    st.write( df.head() )
+
+    if backend == "plotly":
+        fig = _plotly_histogram( df )
         container.plotly_chart( fig, use_container_width = True )
     else:
         visualise.sns.set_palette( palette )
+        fig = _matplotlib_histogram( df )
         fig.set_size_inches( settings.get("figsize"), forward=True )
         if despine:
             visualise.sns.despine()
         visualise.plt.tight_layout()
         container.pyplot( fig )
-
+    download = container.download_button( "Download table", dataset.to_csv( index = False, sep = "\t" ), file_name = f"subset_fractions.tsv", help = "Download the data as a tsv file.", key = "download_table", mime = "text/tsv" )
     return fig 
 
 
@@ -367,4 +381,22 @@ def _add_thresholds_to_matplotlib_fig( fig, x, y ):
     ax.axhline( y = y, color = "black", linestyle = "--", linewidth = 0.5 )
     ax.axvline( x = x, color = "black", linestyle = "--", linewidth = 0.5 )
 
+    return fig
+
+def _plotly_histogram( df ):
+    """
+    Plot a histogram using plotly.
+    """
+    fig = px.bar( df, y = "__hue__", x = "count", color = "scale", barmode = "group", title = "Prevalence of highlighted subsets" )
+    fig.update_layout( xaxis_title = "Fraction", yaxis_title = "" )
+    return fig
+
+def _matplotlib_histogram( df ):
+    """
+    Plot a histogram using matplotlib.
+    """
+    fig, ax = visualise.plt.subplots()
+    visualise.sns.barplot( data = df, y = "__hue__", x = "count", hue = "scale", ax = ax )
+    ax.set( title = "Prevalence of highlighted subsets", xlabel = "Fraction", ylabel = "" )
+    ax.legend( bbox_to_anchor = (1.05, 1), loc = 2, frameon = False, title = "" )
     return fig
