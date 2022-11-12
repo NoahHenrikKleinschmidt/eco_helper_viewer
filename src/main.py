@@ -22,7 +22,7 @@ def main():
         )
     
         
-    st.sidebar.image(f"{loc}/resources/eco_helper.png")
+    st.sidebar.image(f"{loc}/resources/viewer.png")
 
     window.side_controls()
 
