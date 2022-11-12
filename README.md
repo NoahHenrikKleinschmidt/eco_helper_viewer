@@ -33,13 +33,16 @@ Figures are available both interactively through `plotly` and statically through
 
 ![](screenshots/layout1.png)
 
-![](screenshots/mpl_genesets.png)
+![](screenshots/layout5.png)
 
 ![](screenshots/layout4.png)
 
 ![](screenshots/layout2.png)
 
-<!-- ![](screenshots/plotly_genesets_large.png) -->
+![](screenshots/layout3.png)
+
+![](screenshots/layout6.png)
+
 
 
 ### Input Data
