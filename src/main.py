@@ -16,7 +16,7 @@ def main():
     
     st.set_page_config(
             page_title = "eco_helper",
-            page_icon = "resources/eco_helper.svg",
+            page_icon = "resources/viewer.png",
             layout = "wide",
             initial_sidebar_state = "expanded"
         )

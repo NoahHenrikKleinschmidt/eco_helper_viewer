@@ -1,4 +1,8 @@
-# eco_helper_viewer
+<p align="center">
+<img src="src/resources/viewer.png"/>
+</p>
+
+---
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://noahhenrikkleinschmidt-eco-helper-viewer-srcmain-8ju43d.streamlit.app)
 
