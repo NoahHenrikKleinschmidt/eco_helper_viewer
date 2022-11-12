@@ -3,6 +3,7 @@ The main window
 """
 
 
+import os
 import streamlit as st
 import user_input
 import controls
@@ -10,13 +11,18 @@ import ecotype_summary
 import gene_set_explorer as explorer
 import core
 
+
 session = st.session_state
 
 def welcome():
 
-    st.title( "Results Viewer" )
+    loc = os.path.dirname(__file__)
+    st.image(f"{loc}/resources/viewer.png", use_column_width = True)
+
     st.markdown( """
 
+    # Welcome to the _eco_helper_ Results Viewer
+    
     This web application offers an interactive data explorer for the gene set enrichment results of 
     an [EcoTyper](https://github.com/digitalcytometry/ecotyper) analysis, performed by the 
     [eco_helper](https://github.com/NoahHenrikKleinschmidt/eco_helper) package.
@@ -24,7 +30,7 @@ def welcome():
     It allows for easy visualization of enriched terms, placing them into categories and exporting figures.
 
     To use the viewer, be sure to export an enrichment collection as a pickle-file via `eco_helper` and upload it here.
-    """)
+    """, unsafe_allow_html = True )
 
 def side_controls():
 
