@@ -15,7 +15,7 @@ session = st.session_state
 def main():
     
     st.set_page_config(
-            page_title = "eco_helper",
+            page_title = "eco_helper Viewer",
             page_icon = "resources/icon.png",
             layout = "wide",
             initial_sidebar_state = "expanded"
