@@ -287,7 +287,7 @@ def view_histogram(container = st):
             visualise.sns.despine()
         visualise.plt.tight_layout()
         container.pyplot( fig )
-    download = container.download_button( "Download table", df.to_csv( index = False, sep = "\t" ), file_name = f"subset_fractions.tsv", help = "Download the data as a tsv file.", key = "download_table", mime = "text/tsv" )
+    download = container.download_button( "Download table", df.to_csv( index = False, sep = "\t" ), file_name = f"{dataset._ecotype}_{dataset._celltype}.fractions.tsv", help = "Download the data as a tsv file.", key = "download_table", mime = "text/tsv" )
     return fig 
 
 
