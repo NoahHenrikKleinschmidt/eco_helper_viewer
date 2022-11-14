@@ -16,17 +16,17 @@ def main():
     
     st.set_page_config(
             page_title = "eco_helper Viewer",
-            page_icon = "resources/icon.png",
+            page_icon = f"{loc}/resources/icon.png",
             layout = "wide",
             initial_sidebar_state = "expanded"
         )
     
         
-    st.sidebar.image(f"{loc}/resources/viewer.png")
+    st.sidebar.image(window.viewer_logo)
 
     window.side_controls()
 
-    if not core.get( "datafile" ):
+    if not core.get( "datafile" ) and not core.get( "collection" ):
          window.welcome()
 
     if core.get( "datafile" ) and not core.get( "collection" ):
