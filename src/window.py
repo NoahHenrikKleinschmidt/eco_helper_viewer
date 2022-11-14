@@ -39,7 +39,8 @@ def welcome():
     """, unsafe_allow_html = True )
 
 def side_controls():
-
+    
+    st.sidebar.image(viewer_logo)
     user_input.upload(st.sidebar)
     user_input.inspect_summary(st.sidebar)
     user_input.explore_gene_sets(st.sidebar)

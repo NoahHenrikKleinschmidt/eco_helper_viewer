@@ -22,7 +22,7 @@ def main():
         )
     
         
-    st.sidebar.image(window.viewer_logo)
+    
 
     window.side_controls()
 
