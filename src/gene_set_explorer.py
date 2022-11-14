@@ -349,6 +349,7 @@ def view_gene_sets(container = st):
 
     visualise.backend = settings.get("backend")
 
+    visualise.sns.set_palette( settings.get("palette") )
     plotter = visualise.StateScatterplot(   df = dataset, x = settings.get("x"), y = settings.get("y"), hue = settings.get("hue"), style = settings.get("style") )
     fig = plotter.top_gene_sets( subsets = subsets, ref_col = ref_col, n = n_topmost, x_threshold = topx, y_threshold = topy, title = title, xlabel = settings.get("xlabel") )
     
