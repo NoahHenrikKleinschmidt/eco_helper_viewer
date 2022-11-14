@@ -83,7 +83,11 @@ def figure_settings(container = st):
 def subsets_textfield(container = st):
     subsets = container.text_area( "Highlighted subsets", value = str( json.dumps( session.get( "highlight_subsets", {} ), indent = 4 ) ), help = "The currently highlighted term-subsets. The subsets can be edited in this field and saved." )
     save = container.button( "Save", help = "Save the field contents as subsets." )
-    download = container.download_button( "Download", subsets, mime = "text/json", file_name = "highlighted_subsets.json", help = "Download the field contents as a file." )
+
+    filename = core.get( "gene_set" )
+    filename = f"{filename._ecotype}_{filename._celltype}.subsets.json"
+
+    download = container.download_button( "Download", subsets, mime = "text/json", file_name = filename, help = "Download the field contents as a file." )
     if save:
         subsets = json.loads( subsets )
         for i in subsets: 
