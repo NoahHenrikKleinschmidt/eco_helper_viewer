@@ -37,7 +37,7 @@ def scatter_figure_controls(container = st):
     
     return settings
 
-def download_figure( fig, filename, container = st):
+def download_figure( fig, filename = None, suffix = None, container = st):
     """
     Download summary figure.
     
@@ -46,10 +46,21 @@ def download_figure( fig, filename, container = st):
     fig : matplotlib.figure.Figure or plotly.graph_objects.Figure
         The figure to download.
     filename : str
-        The filename to save the figure as.
+        The filename to save the figure as. If none is provided, the filename is assembled from the currently loaded dataset.
+    suffix : str
+        A suffix to append to the filename.
     container : streamlit.container
         The container to use for the controls.
     """
+    if filename is None:
+        dataset = get( "gene_set" )
+        ecotype = dataset._ecotype
+        celltype = dataset._celltype
+        filename = f"{ecotype}_{celltype}"
+
+    if suffix is not None:
+        filename = f"{filename}.{suffix}"
+        
     if not fig:
         return
     if visualise.backend == "plotly":

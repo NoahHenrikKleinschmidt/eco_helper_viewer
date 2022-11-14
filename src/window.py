@@ -4,6 +4,7 @@ The main window
 
 
 import os
+import darkdetect
 import streamlit as st
 import user_input
 import controls
@@ -14,10 +15,15 @@ import core
 
 session = st.session_state
 
+
+loc = os.path.dirname(__file__)
+suffix = "_light" if darkdetect.isDark() else "_dark"
+viewer_logo = f"{loc}/resources/viewer{suffix}.png"
+
+
 def welcome():
 
-    loc = os.path.dirname(__file__)
-    st.image(f"{loc}/resources/viewer.png", use_column_width = True)
+    st.image(viewer_logo, use_column_width = True)
 
     st.markdown( """
 
@@ -74,17 +80,19 @@ def gene_set_explorer():
 
     if core.get( "which_subsets" ).get( "scatter" ):
         subsets_fig = explorer.view_subsets(mcol2)
-        controls.download_figure( subsets_fig, "subset_scatterplot", mcol2 )
+        
+        controls.download_figure( subsets_fig, suffix = "subsets", container = mcol2 )
+    
         gene_set_view_container = middle_upper
     else:
         gene_set_view_container = mcol2
 
     if core.get( "which_subsets" ).get( "counts" ):
         counts_fig = explorer.view_histogram(mcol2)
-        controls.download_figure( counts_fig, "subset_counts", mcol2 )
+        controls.download_figure( counts_fig, suffix = "fractions", container = mcol2 )
 
     if core.get( "which_subsets" ).get( "topmost" ):
         topmost_fig = explorer.view_gene_sets(gene_set_view_container)
-        controls.download_figure( topmost_fig, "topmost_terms", gene_set_view_container )
+        controls.download_figure( topmost_fig, suffix = "topmost", container = gene_set_view_container )
 
     middle_lower.markdown("---")

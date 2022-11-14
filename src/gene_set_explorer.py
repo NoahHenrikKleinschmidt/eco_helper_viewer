@@ -85,7 +85,11 @@ def subsets_textfield(container = st):
     save = container.button( "Save", help = "Save the field contents as subsets." )
     download = container.download_button( "Download", subsets, mime = "text/json", file_name = "highlighted_subsets.json", help = "Download the field contents as a file." )
     if save:
-        session["highlight_subsets"] = eval( subsets )
+        subsets = json.loads( subsets )
+        for i in subsets: 
+            if subsets[i] is None:
+                subsets.pop(i)
+        session["highlight_subsets"] = subsets
     
 def edit_subsets(container = st):
     """
