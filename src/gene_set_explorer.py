@@ -367,7 +367,7 @@ def view_gene_sets(container = st):
     if core.get( "which_subsets" ).get( "topmost_table" ):
         table_ext = container.expander( "Gene set table", expanded = False )
         table_ext.table(plotter.df)
-    download = container.download_button( "Download table", dataset.to_csv( index = False, sep = "\t" ), file_name = "topmost_terms.tsv", mime = "text/tsv" )
+    download = container.download_button( "Download table", dataset.to_csv( index = False, sep = "\t" ), file_name = f"{dataset._ecotype}_{dataset._celltype}.topmost.tsv", mime = "text/tsv" )
 
     return fig
 
