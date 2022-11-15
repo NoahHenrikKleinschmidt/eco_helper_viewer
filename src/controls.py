@@ -32,7 +32,7 @@ def scatter_figure_controls(container = st):
         x_size = col2.slider( "Figure width", min_value = 5, max_value = 30, value = 10, help = "The width of the figure" )
         y_size = col2.slider( "Figure height", min_value = 2, max_value = 30, value = 4, help = "The height of the figure" )
         despine = col2.checkbox( "Despine", value = True, help = "Remove the top and right spines" )
-        palette = col1.text_input( "Palette", value = "husl", help = "The palette to use for the plot" )
+        palette = col1.text_input( "Palette", value = "colorblind", help = "The palette to use for the plot" )
         settings.update( dict( figsize = (x_size, y_size), despine = despine, palette = palette ) )
     
     return settings
