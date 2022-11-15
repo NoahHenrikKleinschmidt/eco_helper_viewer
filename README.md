@@ -1,5 +1,5 @@
 <p align="center">
-<img src="src/resources/viewer.png"/>
+<img src="src/resources/viewer_dark.png"/>
 </p>
 
 ---
