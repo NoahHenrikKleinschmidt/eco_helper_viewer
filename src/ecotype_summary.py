@@ -123,6 +123,7 @@ def _matplotlib_gene_sets_of_ecotype( ecotype, df ):
     n = get( "view_n_topmost" )
     x, y = settings.get("x"), settings.get("y")
     despine = settings.pop( "despine" )
+    sns.set_palette( settings.get( "palette" ) )
 
     fig, ax = plt.subplots( figsize = settings.pop("figsize", None) )
     groups = df.groupby( settings.get("hue") )
